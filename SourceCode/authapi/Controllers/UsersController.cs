@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using authapi.Data.Repositories;
+using authapi.Models;
+using authapi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace authapi.Controllers
 {
@@ -11,8 +9,46 @@ namespace authapi.Controllers
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        [HttpPost("Login")]
-        public ActionResult Get()
+        private readonly IUserService _service;
+
+        public UsersController(IUserService service)
+        {
+            _service = service;
+        }
+
+        [HttpPost("SignIn")]
+        public ActionResult<LoginResponse> SignIn([FromBody] UserLogin login)
+        {
+            return Ok();
+        }
+
+        [HttpPost("SignUp")]
+        public ActionResult SignUp([FromBody] UserSignUp user)
+        {
+            return Ok();
+        }
+
+        [HttpPost("Recover")]
+        public ActionResult<UserRecoverResponse> Recover([FromQuery] string username)
+        {
+            return Ok();
+        }
+
+        [HttpGet]
+        public ActionResult<UserListReduced> Get()
+        {
+            try
+            {
+                return Ok(_service.List());
+            }
+            catch (System.Exception e)
+            {
+                return Problem(e.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<UserList> Get([FromRoute] long id)
         {
             return Ok();
         }
