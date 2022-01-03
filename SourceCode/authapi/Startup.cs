@@ -33,7 +33,10 @@ namespace authapi
             );
 
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserLogRepository, UserLogRepository>();
+            
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserLogService, UserLogService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

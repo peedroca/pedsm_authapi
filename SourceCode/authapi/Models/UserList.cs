@@ -17,11 +17,12 @@ namespace authapi.Models
         public string Username { get; set; }
         public string Email { get; set; }
         public bool Blocked { get; set; }
-        public DateTime LastLogin { get; set; }
+        public DateTime? LastLogin { get; set; }
         public IReadOnlyCollection<UserLog> Logs { get { return _logs.AsReadOnly(); } }
 
         public UserList WithLogs(params UserLog[] log)
         {
+            if (log != null && log.Length > 0)
             _logs.AddRange(log);
             return this;
         }

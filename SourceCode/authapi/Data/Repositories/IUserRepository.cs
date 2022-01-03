@@ -9,7 +9,8 @@ namespace authapi.Data.Repositories
         void SignUp(User user);
         void Recover(UserRecover userRecover);
         void ChangePassword(User user);
-        User Get(long id);
+        List<UserLog> GetLogs(long id);
+        User Get(string username);
         List<User> List();
     }
 }

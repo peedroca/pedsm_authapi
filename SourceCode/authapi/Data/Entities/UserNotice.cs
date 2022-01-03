@@ -12,5 +12,7 @@ namespace authapi.Data.Entities
         public bool CreatedUser { get; set; }
         public DateTime RegisterDate { get; set; }
         public bool Active { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

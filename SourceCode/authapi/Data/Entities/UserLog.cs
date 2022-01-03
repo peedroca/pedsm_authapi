@@ -12,5 +12,8 @@ namespace authapi.Data.Entities
         public int UserLogTypesId { get; set; }
         public DateTime RegisterDate { get; set; }
         public bool Active { get; set; }
+
+        public virtual User User { get; set; }
+        public virtual UserLogType UserLogTypes { get; set; }
     }
 }

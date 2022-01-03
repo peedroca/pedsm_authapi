@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using authapi.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace authapi.Data.Repositories
 {
@@ -15,12 +16,26 @@ namespace authapi.Data.Repositories
 
         public void ChangePassword(User user)
         {
-            throw new System.NotImplementedException();
+            _context.Update(user);
+            _context.SaveChanges();
         }
 
-        public User Get(long id)
+        public User Get(string username)
         {
-            throw new System.NotImplementedException();
+            return _context.Users
+                .Include(o => o.UserRecovers)
+                .Where(w => w.Username == username)
+                .SingleOrDefault();
+        }
+
+        public List<UserLog> GetLogs(long id)
+        {
+            return _context
+                .UserLogs
+                .Include(o => o.User)
+                .Include(o => o.UserLogTypes)
+                .Where(w => w.UserId == id)
+                .ToList();
         }
 
         public List<User> List()
@@ -30,7 +45,8 @@ namespace authapi.Data.Repositories
 
         public void Recover(UserRecover userRecover)
         {
-            throw new System.NotImplementedException();
+            _context.UserRecovers.Add(userRecover);
+            _context.SaveChanges();
         }
 
         public User SignIn(string username, string password)

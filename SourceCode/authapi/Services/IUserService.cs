@@ -6,9 +6,9 @@ namespace authapi.Services
     public interface IUserService
     {
         LoginResponse SignIn(string username, string password);
+        UserRecoverResponse Recover(string username);
         void SignUp(UserSignUp user);
-        void Recover(string username);
-        void ChangePassword(string username, string password, string code);
+        void ChangePassword(UserRecover user);
         UserList Get(long id);
         IEnumerable<UserListReduced> List();
     }

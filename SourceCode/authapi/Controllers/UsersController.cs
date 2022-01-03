@@ -31,7 +31,28 @@ namespace authapi.Controllers
         [HttpPost("Recover")]
         public ActionResult<UserRecoverResponse> Recover([FromQuery] string username)
         {
-            return Ok();
+            try
+            {
+                return Ok(_service.Recover(username));
+            }
+            catch (System.Exception e)
+            {
+                return Problem(e.Message);
+            }
+        }
+
+        [HttpPut("ChangePassword")]
+        public ActionResult ChangePassword([FromBody] Models.UserRecover user)
+        {
+            try
+            {
+                _service.ChangePassword(user);
+                return Ok();
+            }
+            catch (System.Exception e)
+            {
+                return Problem(e.Message);
+            }
         }
 
         [HttpGet]
@@ -50,7 +71,14 @@ namespace authapi.Controllers
         [HttpGet("{id}")]
         public ActionResult<UserList> Get([FromRoute] long id)
         {
-            return Ok();
+            try
+            {
+                return Ok(_service.Get(id));
+            }
+            catch (System.Exception e)
+            {
+                return Problem(e.Message);
+            }
         }
     }
 }
