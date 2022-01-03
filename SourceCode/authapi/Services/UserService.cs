@@ -11,11 +11,15 @@ namespace authapi.Services
     {
         private readonly IUserRepository _repo;
         private readonly IUserLogService _logService;
+        private readonly TokenService _tokenService;
 
-        public UserService(IUserRepository repo, IUserLogService logService)
+        public UserService(IUserRepository repo
+            , IUserLogService logService
+            , TokenService tokenService)
         {
             _repo = repo;
             _logService = logService;
+            _tokenService = tokenService;
         }
 
         public void ChangePassword(Models.UserRecover userRecover)
@@ -35,7 +39,7 @@ namespace authapi.Services
                 .First(f => f.IduserRecover == recover.IduserRecover)
                 .Expired = true;
 
-            _repo.ChangePassword(user);
+            _repo.Update(user);
             _logService.Log(user.Iduser, Models.UserLogType.PasswordChanged);
         }
 
@@ -108,14 +112,61 @@ namespace authapi.Services
             return guid.ToUpper().Replace("-", "").Substring(0, 6);
         }
 
-        public LoginResponse SignIn(string username, string password)
+        public LoginResponse SignIn(UserLogin login)
         {
-            throw new System.NotImplementedException();
+            var user = _repo.SignIn(login.Username, login.Password);
+            
+            if (user == null)
+                throw new ArgumentException("Username and/or password do not match any.");
+
+            var expirationTime = DateTime.UtcNow.AddHours(2);
+            var token = _tokenService.GenerateToken(login.Username, "Common", expirationTime);
+
+            user.LastLoginDate = DateTime.Now;
+            _repo.Update(user);
+            
+            _logService.Log(user.Iduser, Models.UserLogType.GeneratedAuthToken);
+
+            return new LoginResponse()
+            {
+                User = new UserLogged()
+                {
+                    Username = user.Username,
+                    Email = user.Email,
+                    LoginDate = DateTime.Now
+                },
+                Token = new Token()
+                {
+                    Content = token,
+                    Expiration = expirationTime,
+                    Generation = DateTime.Now
+                }
+            };
         }
 
         public void SignUp(UserSignUp user)
         {
-            throw new System.NotImplementedException();
+            var entity = new User()
+            {
+                Iduser = 0,
+                Active = true,
+                Blocked = false,
+                Email = user.Email,
+                LastLoginDate = null,
+                Password = user.Password,
+                RegisterDate = DateTime.Now,
+                Username = user.Username
+            };
+
+            entity.UserLogs.Add(new Data.Entities.UserLog()
+            {
+                IduserLog = 0,
+                Active = true,
+                RegisterDate = DateTime.Now,
+                UserLogTypesId = Models.UserLogType.Created.GetHashCode()
+            });
+
+            _repo.Save(entity);
         }
     }
 }

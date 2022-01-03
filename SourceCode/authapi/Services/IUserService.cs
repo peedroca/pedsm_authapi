@@ -5,7 +5,7 @@ namespace authapi.Services
 {
     public interface IUserService
     {
-        LoginResponse SignIn(string username, string password);
+        LoginResponse SignIn(UserLogin login);
         UserRecoverResponse Recover(string username);
         void SignUp(UserSignUp user);
         void ChangePassword(UserRecover user);

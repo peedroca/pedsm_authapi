@@ -19,13 +19,28 @@ namespace authapi.Controllers
         [HttpPost("SignIn")]
         public ActionResult<LoginResponse> SignIn([FromBody] UserLogin login)
         {
-            return Ok();
+            try
+            {
+                return Ok(_service.SignIn(login));
+            }
+            catch (System.Exception e)
+            {
+                return Problem(e.Message);
+            }
         }
 
         [HttpPost("SignUp")]
         public ActionResult SignUp([FromBody] UserSignUp user)
         {
-            return Ok();
+            try
+            {
+                _service.SignUp(user);
+                return Ok();
+            }
+            catch (System.Exception e)
+            {
+                return Problem(e.Message);
+            }
         }
 
         [HttpPost("Recover")]

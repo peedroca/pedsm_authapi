@@ -37,6 +37,10 @@ namespace authapi
             
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserLogService, UserLogService>();
+            
+            services.AddSingleton<TokenService>(
+                new TokenService(Configuration.GetValue<string>("SecretKey"))
+            );            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -14,7 +14,7 @@ namespace authapi.Data.Repositories
             _context = context;
         }
 
-        public void ChangePassword(User user)
+        public void Update(object user)
         {
             _context.Update(user);
             _context.SaveChanges();
@@ -45,18 +45,22 @@ namespace authapi.Data.Repositories
 
         public void Recover(UserRecover userRecover)
         {
-            _context.UserRecovers.Add(userRecover);
+            _context.Add(userRecover);
             _context.SaveChanges();
         }
 
         public User SignIn(string username, string password)
         {
-            throw new System.NotImplementedException();
+            return _context
+                .Users
+                .Where(w => w.Username == username && w.Password == password)
+                .SingleOrDefault();
         }
 
-        public void SignUp(User user)
+        public void Save(object user)
         {
-            throw new System.NotImplementedException();
+            _context.Add(user);
+            _context.SaveChanges();
         }
     }
 }
