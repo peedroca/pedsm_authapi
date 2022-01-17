@@ -1,12 +1,16 @@
+using System.Text;
 using authapi.Data;
 using authapi.Data.Repositories;
 using authapi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace authapi
@@ -28,19 +32,33 @@ namespace authapi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "authapi", Version = "v1" });
             });
 
-            services.AddDbContext<PedSMUserContext>(o => 
-                o.UseSqlServer(Configuration.GetConnectionString("SqlServerAuth"))
-            );
+            services.AddAuthorization(auth =>
+            {
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser().Build());
+            });
 
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserLogRepository, UserLogRepository>();
-            
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IUserLogService, UserLogService>();
-            
-            services.AddSingleton<TokenService>(
-                new TokenService(Configuration.GetValue<string>("SecretKey"))
-            );            
+            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("SecretKey"));
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            IoC.Create(services, Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -56,6 +74,7 @@ namespace authapi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

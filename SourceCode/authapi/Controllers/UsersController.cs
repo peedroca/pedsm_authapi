@@ -1,12 +1,14 @@
 ﻿using authapi.Data.Repositories;
 using authapi.Models;
 using authapi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace authapi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _service;
@@ -17,6 +19,7 @@ namespace authapi.Controllers
         }
 
         [HttpPost("SignIn")]
+        [AllowAnonymous]
         public ActionResult<LoginResponse> SignIn([FromBody] UserLogin login)
         {
             try
@@ -30,6 +33,7 @@ namespace authapi.Controllers
         }
 
         [HttpPost("SignUp")]
+        [AllowAnonymous]
         public ActionResult SignUp([FromBody] UserSignUp user)
         {
             try
@@ -44,6 +48,7 @@ namespace authapi.Controllers
         }
 
         [HttpPost("Recover")]
+        [AllowAnonymous]
         public ActionResult<UserRecoverResponse> Recover([FromQuery] string username)
         {
             try
@@ -57,6 +62,7 @@ namespace authapi.Controllers
         }
 
         [HttpPut("ChangePassword")]
+        [AllowAnonymous]
         public ActionResult ChangePassword([FromBody] Models.UserRecover user)
         {
             try

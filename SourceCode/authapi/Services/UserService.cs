@@ -119,7 +119,7 @@ namespace authapi.Services
             if (user == null)
                 throw new ArgumentException("Username and/or password do not match any.");
 
-            var expirationTime = DateTime.UtcNow.AddHours(2);
+            var expirationTime = DateTime.Now.AddDays(2);
             var token = _tokenService.GenerateToken(login.Username, "Common", expirationTime);
 
             user.LastLoginDate = DateTime.Now;
