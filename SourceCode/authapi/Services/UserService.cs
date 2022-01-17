@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using authapi.Crypto;
 using authapi.Data.Entities;
 using authapi.Data.Repositories;
 using authapi.Models;
@@ -34,7 +35,7 @@ namespace authapi.Services
             if (recover.ExpireDate < DateTime.Now)
                 throw new ArgumentException("Code has been expired!");
 
-            user.Password = userRecover.NewPassword;
+            user.Password = SHA256.ToCrypt(userRecover.NewPassword);
             user.UserRecovers
                 .First(f => f.IduserRecover == recover.IduserRecover)
                 .Expired = true;
@@ -114,7 +115,7 @@ namespace authapi.Services
 
         public LoginResponse SignIn(UserLogin login)
         {
-            var user = _repo.SignIn(login.Username, login.Password);
+            var user = _repo.SignIn(login.Username, SHA256.ToCrypt(login.Password));
             
             if (user == null)
                 throw new ArgumentException("Username and/or password do not match any.");
@@ -153,7 +154,7 @@ namespace authapi.Services
                 Blocked = false,
                 Email = user.Email,
                 LastLoginDate = null,
-                Password = user.Password,
+                Password = SHA256.ToCrypt(user.Password),
                 RegisterDate = DateTime.Now,
                 Username = user.Username
             };
